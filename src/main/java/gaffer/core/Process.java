@@ -6,6 +6,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Process implements Callable<Process> {
 	private String dir;
 	private String name;
@@ -14,11 +17,13 @@ public class Process implements Callable<Process> {
 	private AtomicInteger exitCode = new AtomicInteger(0);
 	private java.lang.Process p;
 	private final ReentrantLock processLock = new ReentrantLock();
+	private final Logger logger;
 
 	public Process(String dir, String name, String cmd) {
 		this.dir = dir;
 		this.name = name;
 		this.cmd = cmd;
+		logger = LoggerFactory.getLogger(name);
 	}
 
 	public void start() throws ProcessException {
@@ -54,21 +59,38 @@ public class Process implements Callable<Process> {
 				exitCode.set(1);
 			}
 
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage());
 			throw new ProcessException(e.getMessage());
 		}
+	}
+
+	public boolean isAlive() {
+		try {
+			processLock.lock();
+			return isAliveInteranl();
+		} finally {
+			processLock.unlock();
+		}
+	}
+
+	private boolean isAliveInteranl() {
+		return p != null && p.isAlive();
+
 	}
 
 	public void kill() {
 		try {
 			processLock.lock();
-			if (p != null && p.isAlive()) {
-				System.out.printf("Killing %s\n", name);
+			if (isAliveInteranl()) {
 				p.destroyForcibly();
 			}
 		} finally {
 			processLock.unlock();
 		}
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	@Override

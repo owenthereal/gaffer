@@ -5,7 +5,13 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ProcessManager {
+	public static final String GAFFER_LOGGER = "gaffer";
+	private static final Logger LOGGER = LoggerFactory.getLogger(GAFFER_LOGGER);
+
 	private Procfile procfile;
 
 	public ProcessManager(Procfile procfile) {
@@ -47,7 +53,10 @@ public class ProcessManager {
 
 	private void killAll(Process[] processes) {
 		for (Process process : processes) {
-			process.kill();
+			if (process.isAlive()) {
+				LOGGER.debug("Sending SIGTERM to {}", process.getName());
+				process.kill();
+			}
 		}
 	}
 }
