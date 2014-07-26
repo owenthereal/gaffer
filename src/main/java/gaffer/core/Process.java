@@ -1,8 +1,13 @@
 package gaffer.core;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -10,26 +15,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Process implements Callable<Process> {
+	private final class StdoutRunnable implements Runnable {
+		private final InputStream src;
+
+		private StdoutRunnable(InputStream src) {
+			this.src = src;
+		}
+
+		public void run() {
+			Scanner sc = new Scanner(src);
+			try {
+				while (sc.hasNextLine()) {
+					logger.debug(sc.nextLine());
+				}
+			} finally {
+				sc.close();
+			}
+		}
+	}
+
 	private String dir;
 	private String name;
 	private String cmd;
 
-	private AtomicInteger exitCode = new AtomicInteger(0);
+	private final AtomicInteger exitCode = new AtomicInteger(0);
 	private java.lang.Process p;
 	private final ReentrantLock processLock = new ReentrantLock();
 	private final Logger logger;
+	private final ExecutorService pool;
 
 	public Process(String dir, String name, String cmd) {
 		this.dir = dir;
 		this.name = name;
 		this.cmd = cmd;
-		logger = LoggerFactory.getLogger(name);
+		this.logger = LoggerFactory.getLogger(name);
+		this.pool = Executors.newFixedThreadPool(2);
 	}
 
 	public void start() throws ProcessException {
 		ProcessBuilder pb = new ProcessBuilder(cmd.split(" "));
 		pb.directory(new File(dir));
-		pb.inheritIO();
+		pb.redirectInput(Redirect.INHERIT);
+		pb.redirectErrorStream();
+
 		try {
 			try {
 				processLock.lock();
@@ -38,14 +66,10 @@ public class Process implements Callable<Process> {
 				processLock.unlock();
 			}
 
-			Scanner scanner = new Scanner(p.getInputStream());
-			try {
-				while (scanner.hasNext()) {
-					System.out.println(scanner.nextLine());
-				}
-			} finally {
-				scanner.close();
-			}
+			pool.submit(new StdoutRunnable(new BufferedInputStream(p
+					.getInputStream())));
+			pool.submit(new StdoutRunnable(new BufferedInputStream(p
+					.getErrorStream())));
 
 			exitCode.set(p.waitFor());
 
@@ -61,6 +85,8 @@ public class Process implements Callable<Process> {
 
 			logger.error(e.getMessage());
 			throw new ProcessException(e.getMessage());
+		} finally {
+			pool.shutdown();
 		}
 	}
 
