@@ -16,6 +16,7 @@ public class Gaffer {
 
 	@Argument(usage = "Available commands", handler = SubCommandHandler.class)
 	@SubCommands({ @SubCommand(name = "start", impl = StartCommand.class),
+			@SubCommand(name = "version", impl = VersionCommand.class),
 			@SubCommand(name = "help", impl = HelpCommand.class) })
 	private Command cmd;
 

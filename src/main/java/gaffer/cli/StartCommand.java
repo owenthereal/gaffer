@@ -11,22 +11,19 @@ import org.kohsuke.args4j.Option;
 public class StartCommand extends Command {
 	private static final String NAME = "start";
 
-	private static final String DESC;
+	private static final String DESC = "Start the application specified by a Procfile (defaults to ./Procfile)";
+
+	private static final String EXAMPLES;
 
 	static {
-		StringBuilder desc = new StringBuilder();
-		desc.append("Start the application specified by a Procfile (defaults to ./Procfile)");
-		desc.append("\n");
-		desc.append("\n");
-		desc.append("Examples:");
-		desc.append("\n");
-		desc.append("\n");
-		desc.append(Gaffer.COMMAND_NAME + " start");
-		desc.append("\n");
-		desc.append(Gaffer.COMMAND_NAME + " start web");
-		desc.append("\n");
-		desc.append(Gaffer.COMMAND_NAME + " -f Procfile.test -e env.test");
-		DESC = desc.toString();
+		StringBuilder examples = new StringBuilder();
+		examples.append(Gaffer.COMMAND_NAME + " start");
+		examples.append("\n");
+		examples.append(Gaffer.COMMAND_NAME + " start web");
+		examples.append("\n");
+		examples.append(Gaffer.COMMAND_NAME + " -f Procfile.test -e env.test");
+		
+		EXAMPLES = examples.toString();
 	}
 
 	@Argument(usage = "process name", metaVar = "process name")
@@ -36,7 +33,7 @@ public class StartCommand extends Command {
 	private String procfile = "Procfile";
 
 	public StartCommand() {
-		super(NAME, DESC);
+		super(NAME, DESC, EXAMPLES);
 	}
 
 	@Override

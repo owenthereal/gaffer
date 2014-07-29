@@ -2,6 +2,7 @@ package gaffer.cli;
 
 import java.io.PrintStream;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -13,10 +14,12 @@ public abstract class Command {
 
 	private String name;
 	private String desc;
+	private String examples;
 
-	public Command(String name, String desc) {
+	public Command(String name, String desc, String examples) {
 		this.name = name;
 		this.desc = desc;
+		this.examples = examples;
 	}
 
 	public abstract void execute() throws Exception;
@@ -30,6 +33,17 @@ public abstract class Command {
 		out.println();
 		out.println();
 		out.println(desc);
+		if (examples != null) {
+			out.println();
+			out.println("Examples:");
+			out.println();
+			out.println(formatExamples(examples));
+		}
+	}
+
+	private static final String formatExamples(String examples) {
+		Pattern pattern = Pattern.compile("^", Pattern.MULTILINE);
+		return pattern.matcher(examples).replaceAll("   ");
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -12,7 +12,7 @@ public class HelpCommand extends Command {
 	private String cmd;
 
 	public HelpCommand() {
-		super(NAME, DESC);
+		super(NAME, DESC, null);
 	}
 
 	@Override
