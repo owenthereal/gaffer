@@ -18,12 +18,12 @@ import akka.actor.Props;
 public class ProcessManager {
   private static final class ShutdownHook extends Thread {
     private final ActorSystem system;
-    private final ActorRef process;
+    private final ActorRef processManager;
     private final CountDownLatch latch;
 
     private ShutdownHook(ActorSystem system, ActorRef processManager, CountDownLatch latch) {
       this.system = system;
-      this.process = processManager;
+      this.processManager = processManager;
       this.latch = latch;
     }
 
@@ -33,12 +33,11 @@ public class ProcessManager {
         return;
       }
 
-      process.tell(Signal.TERM, process);
+      processManager.tell(Signal.TERM, processManager);
       try {
         latch.await(5, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     }
   }
