@@ -27,15 +27,16 @@ public class ProcessManagerActor extends UntypedActor {
           Duration.create(1000, TimeUnit.MILLISECONDS), getSelf(), Signal.CHECK,
           getContext().dispatcher(), null);
 
-  public ProcessManagerActor(List<Process> processes, Logger logger) {
+  public ProcessManagerActor(final List<Process> processes, final Logger logger) {
     this.processes = processes;
     this.logger = logger;
   }
 
   @Override
   public void preStart() {
-    for (Process process : processes) {
-      ActorRef processActor =
+    for (final Process process : processes) {
+      logger.debug("starting " + process.getName() + " on port " + process.getPort());
+      final ActorRef processActor =
           getContext()
               .actorOf(Props.create(ProcessActor.class, process, logger), process.getName());
       processActor.tell(Signal.FORK, getSelf());
@@ -49,9 +50,9 @@ public class ProcessManagerActor extends UntypedActor {
   }
 
   @Override
-  public void onReceive(Object msg) {
+  public void onReceive(final Object msg) {
     if (msg instanceof ProcessActor.Message) {
-      ProcessActor.Message message = (ProcessActor.Message) msg;
+      final ProcessActor.Message message = (ProcessActor.Message) msg;
       processState.put(getSender(), message.getState());
 
       if (message.getState() == ProcessActor.State.ERROR) {
@@ -71,7 +72,7 @@ public class ProcessManagerActor extends UntypedActor {
   }
 
   private void killAll() {
-    for (Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
+    for (final Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
       if (!entry.getValue().isDead()) {
         entry.getKey().tell(Signal.TERM, getSelf());
       }
@@ -79,7 +80,7 @@ public class ProcessManagerActor extends UntypedActor {
   }
 
   private void checkAll() {
-    for (Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
+    for (final Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
       if (!entry.getValue().isDead()) {
         entry.getKey().tell(Signal.CHECK, getSelf());
       }
@@ -87,7 +88,7 @@ public class ProcessManagerActor extends UntypedActor {
   }
 
   private boolean shouldShutdown() {
-    for (ProcessActor.State state : processState.values()) {
+    for (final ProcessActor.State state : processState.values()) {
       if (!state.isDead()) {
         return false;
       }

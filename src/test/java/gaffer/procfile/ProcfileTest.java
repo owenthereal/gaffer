@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.procfile;
 
 import static org.junit.Assert.*;
 import gaffer.procfile.Procfile;

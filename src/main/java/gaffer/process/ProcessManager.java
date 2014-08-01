@@ -5,6 +5,7 @@ import gaffer.procfile.ProcfileEntry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +22,8 @@ public class ProcessManager {
     private final ActorRef processManager;
     private final CountDownLatch latch;
 
-    private ShutdownHook(ActorSystem system, ActorRef processManager, CountDownLatch latch) {
+    private ShutdownHook(final ActorSystem system, final ActorRef processManager,
+        final CountDownLatch latch) {
       this.system = system;
       this.processManager = processManager;
       this.latch = latch;
@@ -36,7 +38,7 @@ public class ProcessManager {
       processManager.tell(Signal.TERM, processManager);
       try {
         latch.await(5, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         throw new RuntimeException(e);
       }
     }
@@ -45,23 +47,28 @@ public class ProcessManager {
   public static final String GAFFER_LOGGER = "gaffer";
   private static final Logger LOGGER = LoggerFactory.getLogger(GAFFER_LOGGER);
 
-  private Procfile procfile;
+  private final Procfile procfile;
 
-  public ProcessManager(Procfile procfile) {
+  public ProcessManager(final Procfile procfile) {
     this.procfile = procfile;
   }
 
-  public void start(String dir, String port) {
-    ProcfileEntry[] entries = procfile.getEntries();
-    List<Process> processes = new ArrayList<Process>(entries.length);
-    for (int i = 0; i < entries.length; i++) {
-      ProcfileEntry entry = entries[i];
-      processes.add(new Process(dir, entry.getName(), entry.getCommand()));
+  public void start(final String dir, final Map<String, Integer> concurrency, final int flagPort) {
+    final ProcfileEntry[] entries = procfile.getEntries();
+    final List<Process> processes = new ArrayList<Process>(entries.length);
+    for (int idx = 0; idx < entries.length; idx++) {
+      final ProcfileEntry entry = entries[idx];
+      final int numProcs = concurrency.getOrDefault(entry.getName(), 1);
+      for (int procNum = 0; procNum < numProcs; procNum++) {
+        final Process process =
+            new Process(idx, procNum, dir, entry.getName(), entry.getCommand(), flagPort);
+        processes.add(process);
+      }
     }
 
-    CountDownLatch latch = new CountDownLatch(1);
-    ActorSystem system = ActorSystem.create("start");
-    ActorRef processManager =
+    final CountDownLatch latch = new CountDownLatch(1);
+    final ActorSystem system = ActorSystem.create("start");
+    final ActorRef processManager =
         system.actorOf(Props.create(ProcessManagerActor.class, processes, LOGGER),
             ProcessManagerActor.class.getName());
     system.actorOf(Props.create(ProcessTerminatorActor.class, processManager, latch),
