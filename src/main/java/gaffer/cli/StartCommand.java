@@ -56,7 +56,7 @@ public class StartCommand extends Command {
       final Procfile pf = Procfile.read(path);
       final ProcessManager manager = new ProcessManager(pf);
 
-      final String dir = System.getProperty("user.dir");
+      final String dir = path.getParent().toString();
       manager.start(dir, concurrency, flagPort);
     } catch (final IOException e) {
       throw new CommandException("error reading " + path);
