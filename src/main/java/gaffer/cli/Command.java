@@ -22,7 +22,7 @@ public abstract class Command {
     this.examples = examples;
   }
 
-  public abstract void execute() throws Exception;
+  public abstract void execute() throws CommandException;
 
   public void printHelp(PrintStream out) {
     CmdLineParser parser = new CmdLineParser(this);

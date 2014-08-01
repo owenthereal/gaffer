@@ -11,7 +11,7 @@ public class VersionCommand extends Command {
   }
 
   @Override
-  public void execute() throws Exception {
+  public void execute() throws CommandException {
     System.out.println(VERSION);
   }
 }

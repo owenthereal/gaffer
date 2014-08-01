@@ -35,17 +35,25 @@ public class StartCommand extends Command {
   @Option(name = "-f", usage = "Default: Procfile", metaVar = "procfile")
   private String procfile = "Procfile";
 
+  @Option(name = "-p", usage = "Default: 5000", metaVar = "port")
+  private String port = "5000";
+
+
   public StartCommand() {
     super(NAME, DESC, EXAMPLES);
   }
 
   @Override
-  public void execute() throws IOException {
+  public void execute() throws CommandException {
     Path path = Paths.get(procfile).toAbsolutePath();
-    Procfile pf = Procfile.read(path);
-    ProcessManager manager = new ProcessManager(pf);
+    try {
+      Procfile pf = Procfile.read(path);
+      ProcessManager manager = new ProcessManager(pf);
 
-    String dir = System.getProperty("user.dir");
-    manager.start(dir);
+      String dir = System.getProperty("user.dir");
+      manager.start(dir, port);
+    } catch (IOException e) {
+      throw new CommandException("error reading " + path);
+    }
   }
 }
