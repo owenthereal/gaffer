@@ -1,6 +1,8 @@
 package gaffer.core;
 
 import static org.junit.Assert.*;
+import gaffer.procfile.Procfile;
+import gaffer.procfile.ProcfileEntry;
 
 import java.io.File;
 import java.io.IOException;

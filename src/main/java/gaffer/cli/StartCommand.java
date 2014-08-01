@@ -1,7 +1,7 @@
 package gaffer.cli;
 
-import gaffer.core.ProcessManager;
-import gaffer.core.Procfile;
+import gaffer.process.ProcessManager;
+import gaffer.procfile.Procfile;
 
 import java.io.IOException;
 

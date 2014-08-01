@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.process;
 
 public class ProcessException extends Exception {
 	private static final long serialVersionUID = -6455638333822080671L;

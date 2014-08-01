@@ -1,4 +1,7 @@
-package gaffer.core;
+package gaffer.process;
+
+import gaffer.procfile.Procfile;
+import gaffer.procfile.ProcfileEntry;
 
 import java.util.ArrayList;
 import java.util.List;

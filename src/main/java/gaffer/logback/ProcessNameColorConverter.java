@@ -6,7 +6,7 @@ import static ch.qos.logback.core.pattern.color.ANSIConstants.GREEN_FG;
 import static ch.qos.logback.core.pattern.color.ANSIConstants.MAGENTA_FG;
 import static ch.qos.logback.core.pattern.color.ANSIConstants.WHITE_FG;
 import static ch.qos.logback.core.pattern.color.ANSIConstants.YELLOW_FG;
-import gaffer.core.ProcessManager;
+import gaffer.process.ProcessManager;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;

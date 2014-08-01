@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.process;
 
 import java.io.BufferedInputStream;
 import java.io.File;

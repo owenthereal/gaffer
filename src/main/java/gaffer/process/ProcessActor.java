@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.process;
 
 import org.slf4j.Logger;
 

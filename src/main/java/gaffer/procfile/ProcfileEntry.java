@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.procfile;
 
 public class ProcfileEntry {
 	private String name;

@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.procfile;
 
 import java.io.IOException;
 import java.nio.file.Files;

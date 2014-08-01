@@ -1,4 +1,4 @@
-package gaffer.core;
+package gaffer.process;
 
 import java.util.HashMap;
 import java.util.List;
