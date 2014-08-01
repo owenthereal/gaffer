@@ -1,19 +1,19 @@
 package gaffer.procfile;
 
 public class ProcfileEntry {
-	private String name;
-	private String command;
+  private String name;
+  private String command;
 
-	public ProcfileEntry(String name, String command) {
-		this.name = name;
-		this.command = command;
-	}
+  public ProcfileEntry(String name, String command) {
+    this.name = name;
+    this.command = command;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public String getCommand() {
-		return command;
-	}
+  public String getCommand() {
+    return command;
+  }
 }

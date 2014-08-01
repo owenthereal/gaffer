@@ -1,5 +1,5 @@
 package gaffer.process;
 
 public enum Signal {
-	FORK, TERM, CHECK
+  FORK, TERM, CHECK
 }
