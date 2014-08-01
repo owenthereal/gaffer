@@ -1,14 +1,46 @@
 package gaffer.core;
 
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+
 public class ProcessManager {
+	private static final class ShutdownHook extends Thread {
+		private final ActorSystem system;
+		private final ActorRef process;
+		private final CountDownLatch latch;
+
+		private ShutdownHook(ActorSystem system, ActorRef processManager,
+				CountDownLatch latch) {
+			this.system = system;
+			this.process = processManager;
+			this.latch = latch;
+		}
+
+		@Override
+		public void run() {
+			if (system.isTerminated()) {
+				return;
+			}
+
+			process.tell(Signal.TERM, process);
+			try {
+				latch.await(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static final String GAFFER_LOGGER = "gaffer";
 	private static final Logger LOGGER = LoggerFactory.getLogger(GAFFER_LOGGER);
 
@@ -20,43 +52,21 @@ public class ProcessManager {
 
 	public void start(String dir) {
 		ProcfileEntry[] entries = procfile.getEntries();
-		Process[] processes = new Process[entries.length];
+		List<Process> processes = new ArrayList<Process>(entries.length);
 		for (int i = 0; i < entries.length; i++) {
 			ProcfileEntry entry = entries[i];
-			processes[i] = new Process(dir, entry.getName(), entry.getCommand());
+			processes
+					.add(new Process(dir, entry.getName(), entry.getCommand()));
 		}
 
-		ExecutorService pool = Executors.newFixedThreadPool(Runtime
-				.getRuntime().availableProcessors());
-		try {
-			CompletionService<Process> ecs = new ExecutorCompletionService<Process>(
-					pool);
-			runAll(ecs, processes);
-		} finally {
-			pool.shutdown();
-		}
-	}
-
-	private void runAll(CompletionService<Process> ecs, Process[] processes) {
-		for (Process process : processes) {
-			ecs.submit(process);
-		}
-
-		for (int i = 0; i < processes.length; i++) {
-			try {
-				ecs.take().get();
-			} catch (Exception e) {
-				killAll(processes);
-			}
-		}
-	}
-
-	private void killAll(Process[] processes) {
-		for (Process process : processes) {
-			if (process.isAlive()) {
-				LOGGER.debug("Sending SIGTERM to {}", process.getName());
-				process.kill();
-			}
-		}
+		CountDownLatch latch = new CountDownLatch(1);
+		ActorSystem system = ActorSystem.create("start");
+		ActorRef processManager = system.actorOf(
+				Props.create(ProcessManagerActor.class, processes, LOGGER),
+				ProcessManagerActor.class.getName());
+		system.actorOf(Props.create(ProcessTerminatorActor.class,
+				processManager, latch), ProcessTerminatorActor.class.getName());
+		Runtime.getRuntime().addShutdownHook(
+				new ShutdownHook(system, processManager, latch));
 	}
 }
