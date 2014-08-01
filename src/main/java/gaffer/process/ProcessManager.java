@@ -18,6 +18,7 @@ import akka.actor.Props;
 
 public class ProcessManager {
   private static final class ShutdownHook extends Thread {
+    private static final int SHUTDOWN_TIMEOUT_SEC = 5;
     private final ActorSystem system;
     private final ActorRef processManager;
     private final CountDownLatch latch;
@@ -37,7 +38,7 @@ public class ProcessManager {
 
       processManager.tell(Signal.TERM, processManager);
       try {
-        latch.await(5, TimeUnit.SECONDS);
+        latch.await(SHUTDOWN_TIMEOUT_SEC, TimeUnit.SECONDS);
       } catch (final InterruptedException e) {
         throw new RuntimeException(e);
       }
