@@ -4,6 +4,8 @@ import gaffer.process.ProcessManager;
 import gaffer.procfile.Procfile;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -30,7 +32,7 @@ public class StartCommand extends Command {
   @Argument(usage = "process name", metaVar = "process name")
   private String process;
 
-  @Option(name = "-f", usage = "path to Procfile", metaVar = "procfile")
+  @Option(name = "-f", usage = "Default: Procfile", metaVar = "procfile")
   private String procfile = "Procfile";
 
   public StartCommand() {
@@ -39,9 +41,11 @@ public class StartCommand extends Command {
 
   @Override
   public void execute() throws IOException {
+    Path path = Paths.get(procfile).toAbsolutePath();
+    Procfile pf = Procfile.read(path);
+    ProcessManager manager = new ProcessManager(pf);
+
     String dir = System.getProperty("user.dir");
-    Procfile procfile = Procfile.read(dir);
-    ProcessManager manager = new ProcessManager(procfile);
     manager.start(dir);
   }
 }

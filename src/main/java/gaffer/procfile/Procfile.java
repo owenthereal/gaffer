@@ -3,7 +3,6 @@ package gaffer.procfile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -22,8 +21,7 @@ public class Procfile {
     entries.add(entry);
   }
 
-  public static Procfile read(String dir) throws IOException {
-    Path path = Paths.get(dir, "Procfile");
+  public static Procfile read(Path path) throws IOException {
     List<String> lines = Files.readAllLines(path);
 
     Procfile procfile = new Procfile();

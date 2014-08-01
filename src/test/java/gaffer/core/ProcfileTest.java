@@ -16,9 +16,9 @@ import org.junit.Test;
 public class ProcfileTest {
   @Test
   public void readProcfile() throws IOException, URISyntaxException {
-    Path path = Paths.get(File.separator + "fixtures");
+    Path path = Paths.get(File.separator + "fixtures", "Procfile");
     URL url = getClass().getResource(path.toString());
-    Procfile procfile = Procfile.read(url.getFile());
+    Procfile procfile = Procfile.read(Paths.get(url.toURI()));
     ProcfileEntry[] entries = procfile.getEntries();
 
     assertEquals(2, entries.length);
