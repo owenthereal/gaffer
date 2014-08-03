@@ -4,6 +4,7 @@ import gaffer.procfile.Procfile;
 import gaffer.procfile.ProcfileEntry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -55,13 +56,14 @@ public class ProcessManager {
     process.waitFor();
   }
 
-  public void start(final Procfile procfile, final Map<String, Integer> concurrency,
-      final int flagPort) {
+  public void start(final Procfile procfile, final String processName,
+      final Map<String, Integer> concurrency, final int flagPort) throws ProcessException {
     final ProcfileEntry[] entries = procfile.getEntries();
     final String dir = procfile.getPath().getParent().toString();
     final List<Process> processes = new ArrayList<Process>(entries.length);
-    for (int idx = 0; idx < entries.length; idx++) {
-      final ProcfileEntry entry = entries[idx];
+    final List<ProcfileEntry> filteredEntries = filterEntries(entries, processName);
+    for (int idx = 0; idx < filteredEntries.size(); idx++) {
+      final ProcfileEntry entry = filteredEntries.get(idx);
       final int numProcs = concurrency.getOrDefault(entry.getName(), 1);
       for (int procNum = 0; procNum < numProcs; procNum++) {
         final String name = entry.getName() + "." + (procNum + 1);
@@ -79,5 +81,25 @@ public class ProcessManager {
     system.actorOf(Props.create(ProcessTerminatorActor.class, processManager, latch),
         ProcessTerminatorActor.class.getName());
     Runtime.getRuntime().addShutdownHook(new ShutdownHook(system, processManager, latch));
+  }
+
+  private List<ProcfileEntry> filterEntries(final ProcfileEntry[] entries, final String processName)
+      throws ProcessException {
+    if (processName == null) {
+      return Arrays.asList(entries);
+    }
+
+    final ArrayList<ProcfileEntry> result = new ArrayList<ProcfileEntry>();
+    for (final ProcfileEntry entry : entries) {
+      if (processName.equals(entry.getName())) {
+        result.add(entry);
+      }
+    }
+
+    if (result.isEmpty()) {
+      throw new ProcessException("no such process " + processName);
+    }
+
+    return result;
   }
 }

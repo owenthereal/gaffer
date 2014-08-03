@@ -1,6 +1,7 @@
 package gaffer.cli;
 
 import gaffer.cli.ConcurrencyFlagParser.ConcurrencyFlagParseException;
+import gaffer.process.ProcessException;
 import gaffer.process.ProcessManager;
 import gaffer.procfile.Procfile;
 
@@ -55,11 +56,13 @@ public class StartCommand extends Command {
       final Map<String, Integer> concurrency = ConcurrencyFlagParser.parse(flagConcurrency);
       final Procfile pf = Procfile.read(path);
       final ProcessManager manager = new ProcessManager();
-      manager.start(pf, concurrency, flagPort);
+      manager.start(pf, process, concurrency, flagPort);
     } catch (final IOException e) {
       throw new CommandException("error reading " + path);
     } catch (final ConcurrencyFlagParseException e) {
       throw new CommandException("error parsing concurrency flag: " + e.getMessage());
+    } catch (final ProcessException e) {
+      throw new CommandException(e.getMessage());
     }
   }
 }
