@@ -39,7 +39,7 @@ public class StartCommand extends Command {
   private final String flagProcfile = "Procfile";
 
   @Option(name = "-p", usage = "Default: 5000", metaVar = "port")
-  private final int flagPort = 5000;
+  private int flagPort = 5000;
 
   @Option(name = "-c", usage = "Concurrency", metaVar = "concurrency")
   private String flagConcurrency;
@@ -55,8 +55,7 @@ public class StartCommand extends Command {
     try {
       final Map<String, Integer> concurrency = ConcurrencyFlagParser.parse(flagConcurrency);
       final Procfile pf = Procfile.read(path);
-      final ProcessManager manager = new ProcessManager();
-      manager.start(pf, process, concurrency, flagPort);
+      new ProcessManager().start(pf, process, concurrency, flagPort);
     } catch (final IOException e) {
       throw new CommandException("error reading " + path);
     } catch (final ConcurrencyFlagParseException e) {

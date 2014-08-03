@@ -52,6 +52,7 @@ public class ProcessManager {
   public void run(final String[] cmd, final int flagPort) throws ProcessException {
     final String dir = System.getProperty("user.dir");
     final Process process = new Process(dir, GAFFER_LOGGER, cmd, flagPort);
+    LOGGER.debug("starting process on port " + process.getPort());
     process.start();
     process.waitFor();
   }

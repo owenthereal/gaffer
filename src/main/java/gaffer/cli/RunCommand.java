@@ -17,7 +17,7 @@ public class RunCommand extends Command {
   private String[] cmd;
 
   @Option(name = "-p", usage = "Default: 5000", metaVar = "port")
-  private final int flagPort = 5000;
+  private int flagPort = 5000;
 
   public RunCommand() {
     super(NAME, DESC, EXAMPLES);
