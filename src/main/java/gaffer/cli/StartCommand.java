@@ -36,7 +36,7 @@ public class StartCommand extends Command {
   private String process;
 
   @Option(name = "-f", usage = "Default: Procfile", metaVar = "procfile")
-  private final String flagProcfile = "Procfile";
+  private String flagProcfile = "Procfile";
 
   @Option(name = "-p", usage = "Default: 5000", metaVar = "port")
   private int flagPort = 5000;
