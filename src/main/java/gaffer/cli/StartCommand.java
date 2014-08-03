@@ -54,10 +54,8 @@ public class StartCommand extends Command {
     try {
       final Map<String, Integer> concurrency = ConcurrencyFlagParser.parse(flagConcurrency);
       final Procfile pf = Procfile.read(path);
-      final ProcessManager manager = new ProcessManager(pf);
-
-      final String dir = path.getParent().toString();
-      manager.start(dir, concurrency, flagPort);
+      final ProcessManager manager = new ProcessManager();
+      manager.start(pf, concurrency, flagPort);
     } catch (final IOException e) {
       throw new CommandException("error reading " + path);
     } catch (final ConcurrencyFlagParseException e) {

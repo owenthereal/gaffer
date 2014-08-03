@@ -16,12 +16,13 @@ public class Gaffer {
 
   @Argument(usage = "Available commands", handler = SubCommandHandler.class)
   @SubCommands({@SubCommand(name = "start", impl = StartCommand.class),
+      @SubCommand(name = "run", impl = RunCommand.class),
       @SubCommand(name = "version", impl = VersionCommand.class),
       @SubCommand(name = "help", impl = HelpCommand.class)})
   private Command cmd;
 
   @Option(name = "--help", aliases = "-h", usage = "Print this message", help = true, hidden = true)
-  private boolean help = false;
+  private final boolean help = false;
 
   private CmdLineParser parser;
 
@@ -29,7 +30,7 @@ public class Gaffer {
 
   private final String[] args;
 
-  public Gaffer(PrintStream outputStream, String[] args) {
+  public Gaffer(final PrintStream outputStream, final String[] args) {
     this.outputStream = outputStream;
     this.args = args;
   }
@@ -41,7 +42,7 @@ public class Gaffer {
         printUsage();
         return;
       }
-    } catch (CmdLineException e) {
+    } catch (final CmdLineException e) {
       printUsage();
       return;
     }
@@ -59,7 +60,7 @@ public class Gaffer {
 
   private CmdLineParser getParser() {
     if (parser == null) {
-      ParserProperties properties = ParserProperties.defaults();
+      final ParserProperties properties = ParserProperties.defaults();
       properties.withUsageWidth(80);
 
       parser = new CmdLineParser(this, properties);
@@ -73,11 +74,11 @@ public class Gaffer {
   }
 
   private void printUsage() {
-    PrintStream out = getOutputStream();
+    final PrintStream out = getOutputStream();
     Commands.printUsage(out);
   }
 
-  public static void main(String args[]) throws Exception {
+  public static void main(final String args[]) throws Exception {
     new Gaffer(System.out, args).run();
   }
 }

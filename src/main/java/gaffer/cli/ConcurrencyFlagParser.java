@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConcurrencyFlagParser {
-  public static class ConcurrencyFlagParseException extends RuntimeException {
+  public static class ConcurrencyFlagParseException extends Exception {
     private static final long serialVersionUID = 7411581830623067366L;
 
     public ConcurrencyFlagParseException(final String msg) {
@@ -12,7 +12,8 @@ public class ConcurrencyFlagParser {
     }
   }
 
-  public static Map<String, Integer> parse(final String flagConcurrency) {
+  public static Map<String, Integer> parse(final String flagConcurrency)
+      throws ConcurrencyFlagParseException {
     final HashMap<String, Integer> result = new HashMap<String, Integer>();
     if (flagConcurrency == null) {
       return result;

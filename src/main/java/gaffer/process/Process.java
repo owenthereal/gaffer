@@ -35,25 +35,24 @@ public class Process {
 
   private final String dir;
   private final String name;
-  private final String cmd;
+  private final String[] cmd;
 
   private java.lang.Process p;
   private final Logger logger;
   private final ExecutorService pool;
   private final int port;
 
-  public Process(final int idx, final int procNum, final String dir, final String name,
-      final String cmd, final int port) {
+  public Process(final String dir, final String name, final String[] cmd, final int port) {
     this.dir = dir;
-    this.name = name + "." + (procNum + 1);
+    this.name = name;
     this.cmd = cmd;
-    this.port = port + (idx * 100);
+    this.port = port;
     this.logger = LoggerFactory.getLogger(getName());
     this.pool = Executors.newFixedThreadPool(2);
   }
 
   public synchronized void start() throws ProcessException {
-    final ProcessBuilder pb = new ProcessBuilder(cmd.split(" "));
+    final ProcessBuilder pb = new ProcessBuilder(cmd);
 
     final Map<String, String> env = pb.environment();
     env.put("PORT", String.valueOf(port));
@@ -71,6 +70,16 @@ public class Process {
       throw new ProcessException(e.getMessage());
     } finally {
       pool.shutdown();
+    }
+  }
+
+  public synchronized void waitFor() throws ProcessException {
+    if (isAlive()) {
+      try {
+        p.waitFor();
+      } catch (final InterruptedException e) {
+        throw new ProcessException(e.getMessage());
+      }
     }
   }
 

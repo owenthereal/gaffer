@@ -1,10 +1,10 @@
 package gaffer.procfile;
 
 public class ProcfileEntry {
-  private String name;
-  private String command;
+  private final String name;
+  private final String command;
 
-  public ProcfileEntry(String name, String command) {
+  public ProcfileEntry(final String name, final String command) {
     this.name = name;
     this.command = command;
   }
@@ -15,5 +15,9 @@ public class ProcfileEntry {
 
   public String getCommand() {
     return command;
+  }
+
+  public String[] getCommandArray() {
+    return command.split(" ");
   }
 }

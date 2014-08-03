@@ -48,21 +48,25 @@ public class ProcessManager {
   public static final String GAFFER_LOGGER = "gaffer";
   private static final Logger LOGGER = LoggerFactory.getLogger(GAFFER_LOGGER);
 
-  private final Procfile procfile;
-
-  public ProcessManager(final Procfile procfile) {
-    this.procfile = procfile;
+  public void run(final String[] cmd, final int flagPort) throws ProcessException {
+    final String dir = System.getProperty("user.dir");
+    final Process process = new Process(dir, GAFFER_LOGGER, cmd, flagPort);
+    process.start();
+    process.waitFor();
   }
 
-  public void start(final String dir, final Map<String, Integer> concurrency, final int flagPort) {
+  public void start(final Procfile procfile, final Map<String, Integer> concurrency,
+      final int flagPort) {
     final ProcfileEntry[] entries = procfile.getEntries();
+    final String dir = procfile.getPath().getParent().toString();
     final List<Process> processes = new ArrayList<Process>(entries.length);
     for (int idx = 0; idx < entries.length; idx++) {
       final ProcfileEntry entry = entries[idx];
       final int numProcs = concurrency.getOrDefault(entry.getName(), 1);
       for (int procNum = 0; procNum < numProcs; procNum++) {
-        final Process process =
-            new Process(idx, procNum, dir, entry.getName(), entry.getCommand(), flagPort);
+        final String name = entry.getName() + "." + (procNum + 1);
+        final int port = flagPort + (idx * 100);
+        final Process process = new Process(dir, name, entry.getCommandArray(), port);
         processes.add(process);
       }
     }
