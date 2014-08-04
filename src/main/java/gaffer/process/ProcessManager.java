@@ -4,7 +4,6 @@ import gaffer.procfile.Procfile;
 import gaffer.procfile.ProcfileEntry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -47,22 +46,22 @@ public class ProcessManager {
   }
 
   public static final String GAFFER_LOGGER = "gaffer";
-  private static final Logger LOGGER = LoggerFactory.getLogger(GAFFER_LOGGER);
+  private final Logger logger = LoggerFactory.getLogger(GAFFER_LOGGER);
 
   public void run(final String[] cmd, final int flagPort) throws ProcessException {
     final String dir = System.getProperty("user.dir");
     final Process process = new Process(dir, GAFFER_LOGGER, cmd, flagPort);
-    LOGGER.debug("starting process on port " + process.getPort());
+    logger.debug("starting process on port " + process.getPort());
     process.start();
     process.waitFor();
   }
 
   public void start(final Procfile procfile, final String processName,
       final Map<String, Integer> concurrency, final int flagPort) throws ProcessException {
-    final ProcfileEntry[] entries = procfile.getEntries();
+    final List<ProcfileEntry> entries = procfile.getEntries();
     final String dir = procfile.getPath().getParent().toString();
-    final List<Process> processes = new ArrayList<Process>(entries.length);
     final List<ProcfileEntry> filteredEntries = filterEntries(entries, processName);
+    final List<Process> processes = new ArrayList<Process>(filteredEntries.size());
     for (int idx = 0; idx < filteredEntries.size(); idx++) {
       final ProcfileEntry entry = filteredEntries.get(idx);
       final int numProcs = concurrency.getOrDefault(entry.getName(), 1);
@@ -77,17 +76,17 @@ public class ProcessManager {
     final CountDownLatch latch = new CountDownLatch(1);
     final ActorSystem system = ActorSystem.create("start");
     final ActorRef processManager =
-        system.actorOf(Props.create(ProcessManagerActor.class, processes, LOGGER),
+        system.actorOf(Props.create(ProcessManagerActor.class, processes, logger),
             ProcessManagerActor.class.getName());
     system.actorOf(Props.create(ProcessTerminatorActor.class, processManager, latch),
         ProcessTerminatorActor.class.getName());
     Runtime.getRuntime().addShutdownHook(new ShutdownHook(system, processManager, latch));
   }
 
-  private List<ProcfileEntry> filterEntries(final ProcfileEntry[] entries, final String processName)
-      throws ProcessException {
+  private List<ProcfileEntry> filterEntries(final List<ProcfileEntry> entries,
+      final String processName) throws ProcessException {
     if (processName == null) {
-      return Arrays.asList(entries);
+      return entries;
     }
 
     final ArrayList<ProcfileEntry> result = new ArrayList<ProcfileEntry>();

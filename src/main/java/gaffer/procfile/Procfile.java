@@ -22,8 +22,8 @@ public class Procfile {
     return path;
   }
 
-  public ProcfileEntry[] getEntries() {
-    return entries.toArray(new ProcfileEntry[entries.size()]);
+  public List<ProcfileEntry> getEntries() {
+    return entries;
   }
 
   private void addEntry(final ProcfileEntry entry) {
