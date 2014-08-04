@@ -1,7 +1,5 @@
 package gaffer.process;
 
-import org.slf4j.Logger;
-
 import akka.actor.UntypedActor;
 
 public class ProcessActor extends UntypedActor {
@@ -10,7 +8,7 @@ public class ProcessActor extends UntypedActor {
 
     private final boolean isDead;
 
-    private State(boolean isDead) {
+    private State(final boolean isDead) {
       this.isDead = isDead;
     }
 
@@ -23,19 +21,19 @@ public class ProcessActor extends UntypedActor {
     private final String process;
     private final State state;
 
-    public static Message created(String process) {
+    public static Message created(final String process) {
       return new Message(process, State.CREATED);
     }
 
-    public static Message terminated(String process) {
+    public static Message terminated(final String process) {
       return new Message(process, State.TERMINATED);
     }
 
-    public static Message error(String process) {
+    public static Message error(final String process) {
       return new Message(process, State.ERROR);
     }
 
-    public Message(String process, State state) {
+    public Message(final String process, final State state) {
       this.process = process;
       this.state = state;
     }
@@ -55,24 +53,21 @@ public class ProcessActor extends UntypedActor {
   }
 
   private final Process process;
-  private final Logger logger;
 
-  public ProcessActor(Process process, Logger logger) {
+  public ProcessActor(final Process process) {
     this.process = process;
-    this.logger = logger;
   }
 
   @Override
-  public void onReceive(Object signal) {
+  public void onReceive(final Object signal) {
     if (signal == Signal.FORK) {
       try {
         process.start();
         getSender().tell(Message.created(process.getName()), getSelf());
-      } catch (ProcessException e) {
+      } catch (final ProcessException e) {
         getSender().tell(Message.error(process.getName()), getSelf());
       }
     } else if (signal == Signal.TERM) {
-      logger.debug("sending SIGTERM to " + process.getName());
       process.kill();
       getSender().tell(Message.terminated(process.getName()), getSelf());
     } else if (signal == Signal.CHECK) {

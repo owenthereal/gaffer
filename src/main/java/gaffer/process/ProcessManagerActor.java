@@ -15,8 +15,8 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 
 public class ProcessManagerActor extends UntypedActor {
-  private final Map<ActorRef, ProcessActor.State> processState =
-      new HashMap<ActorRef, ProcessActor.State>();
+  private Map<ActorRef, ProcessActor.State> processState;
+  private Map<ActorRef, Process> processRef;
   private final List<Process> processes;
   private final Logger logger;
 
@@ -25,6 +25,8 @@ public class ProcessManagerActor extends UntypedActor {
   public ProcessManagerActor(final List<Process> processes, final Logger logger) {
     this.processes = processes;
     this.logger = logger;
+    processState = new HashMap<ActorRef, ProcessActor.State>(processes.size());
+    processRef = new HashMap<ActorRef, Process>(processes.size());
   }
 
   @Override
@@ -32,9 +34,10 @@ public class ProcessManagerActor extends UntypedActor {
     for (final Process process : processes) {
       logger.debug("starting " + process.getName() + " on port " + process.getPort());
       final ActorRef processActor =
-          getContext()
-              .actorOf(Props.create(ProcessActor.class, process, logger), process.getName());
+          getContext().actorOf(Props.create(ProcessActor.class, process), process.getName());
       processActor.tell(Signal.FORK, getSelf());
+
+      processRef.put(processActor, process);
       processState.put(processActor, ProcessActor.State.CREATED);
     }
 
@@ -81,6 +84,8 @@ public class ProcessManagerActor extends UntypedActor {
   private void killAll() {
     for (final Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
       if (!entry.getValue().isDead()) {
+        final Process process = processRef.get(entry.getKey());
+        logger.debug("sending SIGTERM to " + process.getName());
         entry.getKey().tell(Signal.TERM, getSelf());
       }
     }
