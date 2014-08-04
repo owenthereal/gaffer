@@ -48,10 +48,10 @@ public class Process {
     this.cmd = cmd;
     this.port = port;
     this.logger = LoggerFactory.getLogger(getName());
-    this.pool = Executors.newFixedThreadPool(2);
+    this.pool = Executors.newCachedThreadPool();
   }
 
-  public synchronized void start() throws ProcessException {
+  public void start() throws ProcessException {
     final ProcessBuilder pb = new ProcessBuilder(cmd);
 
     final Map<String, String> env = pb.environment();
@@ -73,7 +73,7 @@ public class Process {
     }
   }
 
-  public synchronized void waitFor() throws ProcessException {
+  public void waitFor() throws ProcessException {
     if (isAlive()) {
       try {
         p.waitFor();
@@ -83,11 +83,11 @@ public class Process {
     }
   }
 
-  public synchronized boolean isAlive() {
+  public boolean isAlive() {
     return p != null && p.isAlive();
   }
 
-  public synchronized void kill() {
+  public void kill() {
     if (isAlive()) {
       p.destroy();
     }
