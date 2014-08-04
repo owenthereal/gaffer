@@ -20,7 +20,7 @@ public class ProcessManagerActor extends UntypedActor {
   private final List<Process> processes;
   private final Logger logger;
 
-  private final Cancellable tick = getContext()
+  private Cancellable healthCheck = getContext()
       .system()
       .scheduler()
       .schedule(Duration.create(1000, TimeUnit.MILLISECONDS),
@@ -42,11 +42,25 @@ public class ProcessManagerActor extends UntypedActor {
       processActor.tell(Signal.FORK, getSelf());
       processState.put(processActor, ProcessActor.State.CREATED);
     }
+
+    final Runnable healthCheckRunnable = new Runnable() {
+      @Override
+      public void run() {
+        checkAll();
+      }
+    };
+    healthCheck =
+        getContext()
+            .system()
+            .scheduler()
+            .schedule(Duration.create(1000, TimeUnit.MILLISECONDS),
+                Duration.create(1000, TimeUnit.MILLISECONDS), healthCheckRunnable,
+                getContext().dispatcher());
   }
 
   @Override
   public void postStop() {
-    tick.cancel();
+    healthCheck.cancel();
   }
 
   @Override
@@ -64,8 +78,6 @@ public class ProcessManagerActor extends UntypedActor {
       }
     } else if (msg == Signal.TERM) {
       killAll();
-    } else if (msg == Signal.CHECK) {
-      checkAll();
     } else {
       unhandled(msg);
     }
