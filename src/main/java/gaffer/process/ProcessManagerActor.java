@@ -20,12 +20,7 @@ public class ProcessManagerActor extends UntypedActor {
   private final List<Process> processes;
   private final Logger logger;
 
-  private Cancellable healthCheck = getContext()
-      .system()
-      .scheduler()
-      .schedule(Duration.create(1000, TimeUnit.MILLISECONDS),
-          Duration.create(1000, TimeUnit.MILLISECONDS), getSelf(), Signal.CHECK,
-          getContext().dispatcher(), null);
+  private Cancellable healthCheck;
 
   public ProcessManagerActor(final List<Process> processes, final Logger logger) {
     this.processes = processes;
