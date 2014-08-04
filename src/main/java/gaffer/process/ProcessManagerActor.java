@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 
+import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
@@ -15,6 +18,8 @@ import akka.routing.BroadcastRoutingLogic;
 import akka.routing.Router;
 
 public class ProcessManagerActor extends UntypedActor {
+  private static final int SHUTDOWN_GRACE_TIME = 3000;
+
   private static enum State {
     STARTED, TERMINATING, TERMINATED;
   }
@@ -57,12 +62,12 @@ public class ProcessManagerActor extends UntypedActor {
   public void onReceive(final Object msg) {
     if (msg instanceof Terminated) {
       removeRoutee(((Terminated) msg).actor());
-      killAll();
+      terminateAll();
       if (shouldShutdown()) {
         getContext().stop(getSelf());
       }
     } else if (msg == Signal.TERM) {
-      killAll();
+      terminateAll();
     } else {
       unhandled(msg);
     }
@@ -80,7 +85,7 @@ public class ProcessManagerActor extends UntypedActor {
     return state == State.TERMINATED;
   }
 
-  private void killAll() {
+  private void terminateAll() {
     if (state == State.TERMINATING || state == State.TERMINATED) {
       return;
     }
@@ -90,6 +95,22 @@ public class ProcessManagerActor extends UntypedActor {
     }
 
     router.route(Signal.TERM, getSelf());
+    scheduleKillAll();
     state = State.TERMINATING;
+  }
+
+  private void scheduleKillAll() {
+    final Runnable killAll = new Runnable() {
+      @Override
+      public void run() {
+        router.route(PoisonPill.getInstance(), getSelf());
+
+      }
+    };
+    getContext()
+        .system()
+        .scheduler()
+        .scheduleOnce(Duration.create(SHUTDOWN_GRACE_TIME, TimeUnit.MILLISECONDS), killAll,
+            getContext().dispatcher());
   }
 }

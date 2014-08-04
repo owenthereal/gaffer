@@ -17,19 +17,7 @@ public class ProcessActor extends UntypedActor {
 
   @Override
   public void preStart() throws Exception {
-    final Runnable healthCheckRunnable = new Runnable() {
-      @Override
-      public void run() {
-        getSelf().tell(Signal.CHECK, getSelf());
-      }
-    };
-    healthCheck =
-        getContext()
-            .system()
-            .scheduler()
-            .schedule(Duration.create(1000, TimeUnit.MILLISECONDS),
-                Duration.create(1000, TimeUnit.MILLISECONDS), healthCheckRunnable,
-                getContext().dispatcher());
+    scheduleHealthCheck();
   }
 
   @Override
@@ -55,6 +43,23 @@ public class ProcessActor extends UntypedActor {
       unhandled(signal);
     }
   }
+
+  private void scheduleHealthCheck() {
+    final Runnable healthCheckRunnable = new Runnable() {
+      @Override
+      public void run() {
+        getSelf().tell(Signal.CHECK, getSelf());
+      }
+    };
+    healthCheck =
+        getContext()
+            .system()
+            .scheduler()
+            .schedule(Duration.create(1000, TimeUnit.MILLISECONDS),
+                Duration.create(1000, TimeUnit.MILLISECONDS), healthCheckRunnable,
+                getContext().dispatcher());
+  }
+
 
   private void stopSelf() {
     getContext().stop(getSelf());
