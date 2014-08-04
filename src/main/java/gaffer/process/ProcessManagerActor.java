@@ -10,13 +10,13 @@ import org.slf4j.Logger;
 
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 
 public class ProcessManagerActor extends UntypedActor {
-  private Map<ActorRef, ProcessActor.State> processState;
-  private Map<ActorRef, Process> processRef;
+  private Map<String, ProcessActor.State> processState;
   private final List<Process> processes;
   private final Logger logger;
 
@@ -25,8 +25,7 @@ public class ProcessManagerActor extends UntypedActor {
   public ProcessManagerActor(final List<Process> processes, final Logger logger) {
     this.processes = processes;
     this.logger = logger;
-    processState = new HashMap<ActorRef, ProcessActor.State>(processes.size());
-    processRef = new HashMap<ActorRef, Process>(processes.size());
+    processState = new HashMap<String, ProcessActor.State>(processes.size());
   }
 
   @Override
@@ -36,9 +35,7 @@ public class ProcessManagerActor extends UntypedActor {
       final ActorRef processActor =
           getContext().actorOf(Props.create(ProcessActor.class, process), process.getName());
       processActor.tell(Signal.FORK, getSelf());
-
-      processRef.put(processActor, process);
-      processState.put(processActor, ProcessActor.State.CREATED);
+      processState.put(process.getName(), ProcessActor.State.CREATED);
     }
 
     final Runnable healthCheckRunnable = new Runnable() {
@@ -65,7 +62,7 @@ public class ProcessManagerActor extends UntypedActor {
   public void onReceive(final Object msg) {
     if (msg instanceof ProcessActor.Message) {
       final ProcessActor.Message message = (ProcessActor.Message) msg;
-      processState.put(getSender(), message.getState());
+      processState.put(message.getProcess(), message.getState());
 
       if (message.getState() == ProcessActor.State.ERROR) {
         killAll();
@@ -82,19 +79,20 @@ public class ProcessManagerActor extends UntypedActor {
   }
 
   private void killAll() {
-    for (final Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
+    for (final Entry<String, ProcessActor.State> entry : processState.entrySet()) {
       if (!entry.getValue().isDead()) {
-        final Process process = processRef.get(entry.getKey());
-        logger.debug("sending SIGTERM to " + process.getName());
-        entry.getKey().tell(Signal.TERM, getSelf());
+        logger.debug("sending SIGTERM to " + entry.getKey());
+        final ActorSelection selection = getContext().actorSelection(entry.getKey());
+        selection.tell(Signal.TERM, getSelf());
       }
     }
   }
 
   private void checkAll() {
-    for (final Entry<ActorRef, ProcessActor.State> entry : processState.entrySet()) {
+    for (final Entry<String, ProcessActor.State> entry : processState.entrySet()) {
       if (!entry.getValue().isDead()) {
-        entry.getKey().tell(Signal.CHECK, getSelf());
+        final ActorSelection selection = getContext().actorSelection(entry.getKey());
+        selection.tell(Signal.CHECK, getSelf());
       }
     }
   }
