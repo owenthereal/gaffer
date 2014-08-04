@@ -70,7 +70,7 @@ public class ProcessManagerActor extends UntypedActor {
       processState.put(getSender(), message.getState());
 
       if (message.getState() == ProcessActor.State.ERROR) {
-        getSelf().tell(Signal.TERM, getSelf());
+        killAll();
       }
 
       if (shouldShutdown()) {
