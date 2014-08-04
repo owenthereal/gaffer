@@ -87,6 +87,10 @@ public class Process {
     return p != null && p.isAlive();
   }
 
+  public boolean exitWithError() {
+    return !isAlive() && p.exitValue() != 0;
+  }
+
   public void kill() {
     if (isAlive()) {
       p.destroy();
