@@ -4,7 +4,6 @@ public class VersionCommand extends Command {
   private static final String NAME = "version";
   private static final String DESC = "Display current version";
   private static final String EXAMPLES = Gaffer.COMMAND_NAME + " version";
-  private static final String VERSION = "dev";
 
   public VersionCommand() {
     super(NAME, DESC, EXAMPLES);
@@ -12,6 +11,6 @@ public class VersionCommand extends Command {
 
   @Override
   public void execute() throws CommandException {
-    System.out.println(VERSION);
+    System.out.println(Version.CURRENT_VERSION);
   }
 }
