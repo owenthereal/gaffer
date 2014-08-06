@@ -29,6 +29,18 @@ $ unzip target/gaffer-0.0.1-SNAPSHOT-dist.zip -d target
 $ ./target/gaffer-0.0.1-SNAPSHOT-dist/bin/gaffer help
 ```
 
+## Procfile
+
+A `Procfile` should contain both a name for the process and the command used to run it.
+For example:
+
+```sh
+$ cat Procfile
+web: bundle exec thin start
+job: bundle exec rake jobs:work
+```
+A process name may contain letters, numbers and the underscore character.
+
 ## Usage
 
 ```sh
