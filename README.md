@@ -2,6 +2,10 @@
 
 [Foreman](https://github.com/ddollar/foreman) on JVM. It manages Procfile-based applications.
 
+## Requirement
+
+`gaffer` requires Java 1.7.0 or greater to run and develop.
+
 ## Installation
 
 ##### Homebrew
