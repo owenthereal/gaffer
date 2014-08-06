@@ -19,5 +19,11 @@
 			<destName>gaffer</destName>
 			<fileMode>0755</fileMode>
 		</file>
+		<file>
+			<source>${project.basedir}/bin/gaffer.bat</source>
+			<outputDirectory>bin</outputDirectory>
+			<destName>gaffer.bat</destName>
+			<fileMode>0755</fileMode>
+		</file>
 	</files>
 </assembly>
