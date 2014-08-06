@@ -64,7 +64,11 @@ public class ProcessManager {
     final List<Process> processes = new ArrayList<Process>(filteredEntries.size());
     for (int idx = 0; idx < filteredEntries.size(); idx++) {
       final ProcfileEntry entry = filteredEntries.get(idx);
-      final int numProcs = concurrency.getOrDefault(entry.getName(), 1);
+      int numProcs = 1;
+      if (concurrency.containsKey(entry.getName())) {
+        numProcs = concurrency.get(entry.getName());
+      };
+
       for (int procNum = 0; procNum < numProcs; procNum++) {
         final String name = entry.getName() + "." + (procNum + 1);
         final int port = flagPort + (idx * 100);

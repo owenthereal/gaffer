@@ -1,6 +1,7 @@
 package gaffer.procfile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -31,7 +32,7 @@ public class Procfile {
   }
 
   public static Procfile read(final Path path) throws IOException {
-    final List<String> lines = Files.readAllLines(path);
+    final List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 
     final Procfile procfile = new Procfile(path);
     for (final String line : lines) {

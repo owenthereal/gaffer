@@ -84,7 +84,17 @@ public class Process {
   }
 
   public boolean isAlive() {
-    return p != null && p.isAlive();
+    if (p == null) {
+      return false;
+    }
+
+    try {
+      p.exitValue();
+    } catch (final IllegalThreadStateException e) {
+      return true;
+    }
+
+    return false;
   }
 
   public boolean exitWithError() {
