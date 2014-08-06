@@ -69,7 +69,7 @@ set CMD_LINE_ARGS=%$
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\gradle.jar
+set CLASSPATH=%APP_HOME%\lib\gaffer.jar
 
 @rem Execute Graffer
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% -classpath "%CLASSPATH%" gaffer.cli.Gaffer %CMD_LINE_ARGS%
