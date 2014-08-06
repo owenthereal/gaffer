@@ -56,6 +56,31 @@ $ gaffer run java -jar target/hello-world-0.0.1-SNAPSHOT.jar server
 
 `gaffer` takes advantage of [akka](http://akka.io/)'s [actors](http://en.wikipedia.org/wiki/Actor_model) to [supervise](http://doc.akka.io/docs/akka/snapshot/general/supervision.html) child-processes. More details to come as a blog post.
 
+## Why
+
+`gaffer` does almost the same thing as `foreman`.
+However, it empowers existing JVM build tools to manage Procfile-like applications.
+To give you a taste on what I'm working on, assuming you declare the following in Maven's `pom.xml`:
+
+```xml
+<plugin>
+  <groupId>com.owenou</groundId>
+  <artifactId>maven-gaffer</artifactId>
+  <processes>
+    <process>
+      <name>web</name>
+      <main>web.Main</main>
+    </process>
+    <process>
+      <name>job</name>
+      <shell>./bin/job start</shell>
+    </process>
+  </processes>
+</plugin>
+```
+
+Running `mvn gaffer:start` will start all the processes associated with your app just as you run it from the `gaffer` CLI.
+
 ## Roadmap
 
 * maven plugin
