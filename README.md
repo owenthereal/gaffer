@@ -23,6 +23,8 @@ Download the [latest release](https://github.com/jingweno/gaffer/releases) and u
 
 ##### Compile from Source
 
+To compile `gaffer` from source, you'll need to have [maven](http://maven.apache.org/) installed, and then run:
+
 ```
 $ mvn package
 $ unzip target/gaffer-0.0.1-SNAPSHOT-dist.zip -d target
