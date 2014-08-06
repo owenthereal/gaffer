@@ -4,6 +4,15 @@
 
 ## Installation
 
+##### Homebrew
+
+If you're running OSX, you could:
+
+```sh
+$ brew tap jingweno/gaffer
+$ brew install gaffer
+```
+
 ##### Precompiled Packages
 
 Download the [latest release](https://github.com/jingweno/gaffer/releases) and unzip it.
