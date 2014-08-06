@@ -27,7 +27,7 @@ public class StartCommand extends Command {
     examples.append("\n");
     examples.append(Gaffer.COMMAND_NAME + " start web");
     examples.append("\n");
-    examples.append(Gaffer.COMMAND_NAME + " -f Procfile.test -e env.test");
+    examples.append(Gaffer.COMMAND_NAME + " start -f Procfile.test -c worker=2");
 
     EXAMPLES = examples.toString();
   }
