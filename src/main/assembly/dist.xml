@@ -14,9 +14,39 @@
 			<destName>gaffer.jar</destName>
 		</file>
 		<file>
-			<source>${project.basedir}/bin/gaffer</source>
+			<source>${project.basedir}/bin/gaffer_darwin_386</source>
 			<outputDirectory>bin</outputDirectory>
-			<destName>gaffer</destName>
+			<destName>gaffer_darwin_386</destName>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.basedir}/bin/gaffer_darwin_amd64</source>
+			<outputDirectory>bin</outputDirectory>
+			<destName>gaffer_darwin_amd64</destName>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.basedir}/bin/gaffer_linux_386</source>
+			<outputDirectory>bin</outputDirectory>
+			<destName>gaffer_linux_386</destName>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.basedir}/bin/gaffer_linux_amd64</source>
+			<outputDirectory>bin</outputDirectory>
+			<destName>gaffer_linux_amd64</destName>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.basedir}/bin/gaffer_windows_386.exe</source>
+			<outputDirectory>bin</outputDirectory>
+			<destName>gaffer_windows_386.exe</destName>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.basedir}/bin/gaffer_windows_amd64.exe</source>
+			<outputDirectory>bin</outputDirectory>
+			<destName>gaffer_windows_amd64.exe</destName>
 			<fileMode>0755</fileMode>
 		</file>
 	</files>
