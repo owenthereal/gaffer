@@ -12,7 +12,7 @@
 
 If you're running OSX, you could:
 
-```sh
+```
 $ brew tap jingweno/gaffer
 $ brew install gaffer
 ```
@@ -23,7 +23,7 @@ Download the [latest release](https://github.com/jingweno/gaffer/releases) and u
 
 ##### Compile from Source
 
-```sh
+```
 $ mvn package
 $ unzip target/gaffer-0.0.1-SNAPSHOT-dist.zip -d target
 $ ./target/gaffer-0.0.1-SNAPSHOT-dist/bin/gaffer help
@@ -34,7 +34,7 @@ $ ./target/gaffer-0.0.1-SNAPSHOT-dist/bin/gaffer help
 A `Procfile` should contain both a name for the process and the command used to run it.
 For example:
 
-```sh
+```
 $ cat Procfile
 web: bundle exec thin start
 job: bundle exec rake jobs:work
