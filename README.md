@@ -29,6 +29,11 @@ $ gaffer run java -jar target/hello-world-0.0.1-SNAPSHOT.jar server
 
 `gaffer` takes advantage of [akka](http://akka.io/)'s [actors](http://en.wikipedia.org/wiki/Actor_model) to [supervise](http://doc.akka.io/docs/akka/snapshot/general/supervision.html) child-processes. More details to come as a blog post.
 
+## Roadmap
+
+* maven plugin
+* gradle plugin
+
 ## License
 
 See [License.md](https://github.com/jingweno/gaffer/blob/master/LICENSE.md).
