@@ -25,4 +25,4 @@ $ gaffer run java -jar target/hello-world-0.0.1-SNAPSHOT.jar server
 
 ## License
 
-See License.md
+See [License.md](https://github.com/jingweno/gaffer/blob/master/LICENSE.md).
