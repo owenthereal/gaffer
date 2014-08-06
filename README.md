@@ -4,7 +4,7 @@
 
 ## Installation
 
-Coming soon
+Download the [latest release](https://github.com/jingweno/gaffer/releases) and unzip it.
 
 ## Compile from source
 
