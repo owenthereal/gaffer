@@ -1,4 +1,4 @@
-# gaffer
+# gaffer [![Build Status](https://travis-ci.org/jingweno/gaffer.svg?branch=master)](https://travis-ci.org/jingweno/gaffer)
 
 [Foreman](https://github.com/ddollar/foreman) on JVM. It manages Procfile-based applications.
 
