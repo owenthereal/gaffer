@@ -71,7 +71,8 @@ public class ProcessManager {
 
       for (int procNum = 0; procNum < numProcs; procNum++) {
         final String name = entry.getName() + "." + (procNum + 1);
-        final int port = flagPort + (idx * 100);
+        final int port = flagPort + procNum + (idx * 100);
+
         final Process process = new Process(dir, name, entry.getCommandArray(), port);
         processes.add(process);
       }
