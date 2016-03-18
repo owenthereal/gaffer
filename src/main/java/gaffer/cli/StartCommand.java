@@ -1,6 +1,7 @@
 package gaffer.cli;
 
 import gaffer.cli.ConcurrencyFlagParser.ConcurrencyFlagParseException;
+import gaffer.environment.Environment;
 import gaffer.process.ProcessException;
 import gaffer.process.ProcessManager;
 import gaffer.procfile.Procfile;
@@ -17,7 +18,7 @@ public class StartCommand extends Command {
   private static final String NAME = "start";
 
   private static final String DESC =
-      "Start the application specified by a Procfile (defaults to ./Procfile)";
+      "Start the application specified by a Procfile (defaults to ./Procfile) and reading environment varibales from a .env file (defaults to ./.env)";
 
   private static final String EXAMPLES;
 
@@ -28,6 +29,8 @@ public class StartCommand extends Command {
     examples.append(Gaffer.COMMAND_NAME + " start web");
     examples.append("\n");
     examples.append(Gaffer.COMMAND_NAME + " start -f Procfile.test -c worker=2");
+    examples.append("\n");
+    examples.append(Gaffer.COMMAND_NAME + " start -f Procfile.test -c worker=2 -e my_env_file");
 
     EXAMPLES = examples.toString();
   }
@@ -44,6 +47,8 @@ public class StartCommand extends Command {
   @Option(name = "-c", usage = "Concurrency", metaVar = "concurrency")
   private String flagConcurrency;
 
+  @Option(name = "-e", usage = "Default: .env", metaVar = "environment")
+  private String flagEnvironment = ".env";
 
   public StartCommand() {
     super(NAME, DESC, EXAMPLES);
@@ -52,12 +57,14 @@ public class StartCommand extends Command {
   @Override
   public void execute() throws CommandException {
     final Path path = Paths.get(flagProcfile).toAbsolutePath();
+    final Path envPath = Paths.get(flagEnvironment).toAbsolutePath();
     try {
       final Map<String, Integer> concurrency = ConcurrencyFlagParser.parse(flagConcurrency);
       final Procfile pf = Procfile.read(path);
-      new ProcessManager().start(pf, process, concurrency, flagPort);
+      final Environment env = Environment.read(envPath);
+      new ProcessManager(env).start(pf, process, concurrency, flagPort);
     } catch (final IOException e) {
-      throw new CommandException("error reading " + path);
+      throw new CommandException("error reading " + path, e);
     } catch (final ConcurrencyFlagParseException e) {
       throw new CommandException("error parsing concurrency flag: " + e.getMessage());
     } catch (final ProcessException e) {
