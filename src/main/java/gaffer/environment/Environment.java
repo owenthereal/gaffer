@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,10 @@ public class Environment {
 	private static final Pattern ENV_REGEXP_PATTERN = Pattern.compile("^([A-Za-z0-9_]+)=\\s*(.+)$");
 	private final List<EnvironmentEntry> entries = new LinkedList<EnvironmentEntry>();
 	private final Path path;
+	
+	private Environment() {
+	  this(null);
+	}
 
 	private Environment(final Path path) {
 		this.path = path;
@@ -32,10 +35,17 @@ public class Environment {
 		entries.add(entry);
 	}
 
-	public static Environment read(final Path path) throws IOException {
-		final List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+	public static Environment read(final Path path) {
+		List<String> lines;
+		Environment environment;
+    try {
+      lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+      environment = new Environment(path);
+    } catch (IOException e) {
+      lines = new LinkedList<String>();
+      environment = new Environment();
+    }
 
-		final Environment environment = new Environment(path);
 		for (final String line : lines) {
 			final Matcher matcher = ENV_REGEXP_PATTERN.matcher(line);
 			if (matcher.matches()) {
@@ -54,4 +64,7 @@ public class Environment {
 		return parent;
 	}
 
+  public static Environment empty() {
+    return new Environment();
+  }
 }

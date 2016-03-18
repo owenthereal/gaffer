@@ -64,7 +64,7 @@ public class StartCommand extends Command {
       final Environment env = Environment.read(envPath);
       new ProcessManager(env).start(pf, process, concurrency, flagPort);
     } catch (final IOException e) {
-      throw new CommandException("error reading " + path + " or " + envPath, e);
+      throw new CommandException("error reading " + path, e);
     } catch (final ConcurrencyFlagParseException e) {
       throw new CommandException("error parsing concurrency flag: " + e.getMessage());
     } catch (final ProcessException e) {
