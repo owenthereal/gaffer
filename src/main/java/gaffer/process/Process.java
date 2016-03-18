@@ -12,6 +12,8 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gaffer.environment.Environment;
+
 public class Process {
   private final class StdoutRunnable implements Runnable {
     private final InputStream src;
@@ -41,12 +43,14 @@ public class Process {
   private final Logger logger;
   private final ExecutorService pool;
   private final int port;
+  private Environment environment;
 
-  public Process(final String dir, final String name, final String[] cmd, final int port) {
+  public Process(final String dir, final String name, final String[] cmd, final int port, Environment env) {
     this.dir = dir;
     this.name = name;
     this.cmd = cmd;
     this.port = port;
+    this.environment = env;
     this.logger = LoggerFactory.getLogger(getName());
     this.pool = Executors.newCachedThreadPool();
   }
@@ -54,7 +58,7 @@ public class Process {
   public void start() throws ProcessException {
     final ProcessBuilder pb = new ProcessBuilder(cmd);
 
-    final Map<String, String> env = pb.environment();
+    final Map<String, String> env = environment.enhance(pb.environment());
     env.put("PORT", String.valueOf(port));
 
     pb.directory(new File(dir));

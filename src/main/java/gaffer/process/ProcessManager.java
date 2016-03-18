@@ -1,5 +1,6 @@
 package gaffer.process;
 
+import gaffer.environment.Environment;
 import gaffer.procfile.Procfile;
 import gaffer.procfile.ProcfileEntry;
 
@@ -47,10 +48,15 @@ public class ProcessManager {
 
   public static final String GAFFER_LOGGER = "gaffer";
   private final Logger logger = LoggerFactory.getLogger(GAFFER_LOGGER);
+  private final Environment env;
+
+  public ProcessManager(Environment env) {
+    this.env = env;
+  }
 
   public void run(final String[] cmd, final int flagPort) throws ProcessException {
     final String dir = System.getProperty("user.dir");
-    final Process process = new Process(dir, GAFFER_LOGGER, cmd, flagPort);
+    final Process process = new Process(dir, GAFFER_LOGGER, cmd, flagPort, env);
     logger.debug("starting process on port " + process.getPort());
     process.start();
     process.waitFor();
@@ -67,22 +73,22 @@ public class ProcessManager {
       int numProcs = 1;
       if (concurrency.containsKey(entry.getName())) {
         numProcs = concurrency.get(entry.getName());
-      };
+      }
 
       for (int procNum = 0; procNum < numProcs; procNum++) {
         final String name = entry.getName() + "." + (procNum + 1);
         final int port = flagPort + procNum + (idx * 100);
 
-        final Process process = new Process(dir, name, entry.getCommandArray(), port);
+        final Process process = new Process(dir, name, entry.getCommandArray(), port, env);
         processes.add(process);
       }
     }
 
     final CountDownLatch latch = new CountDownLatch(1);
     final ActorSystem system = ActorSystem.create("start");
-    final ActorRef processManager =
-        system.actorOf(Props.create(ProcessManagerActor.class, processes, logger),
-            ProcessManagerActor.class.getName());
+    final ActorRef processManager = system.actorOf(
+        Props.create(ProcessManagerActor.class, processes, logger),
+        ProcessManagerActor.class.getName());
     system.actorOf(Props.create(ProcessTerminatorActor.class, processManager, latch),
         ProcessTerminatorActor.class.getName());
     Runtime.getRuntime().addShutdownHook(new ShutdownHook(system, processManager, latch));

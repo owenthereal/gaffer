@@ -22,7 +22,7 @@ public class ProcfileTest {
 
     assertEquals(2, entries.size());
     assertEquals("web", entries.get(0).getName());
-    assertEquals("./script/server", entries.get(0).getCommand());
+    assertEquals("./script/server $MY_VARIABLE", entries.get(0).getCommand());
     assertEquals("worker", entries.get(1).getName());
     assertEquals("rake jobs:work", entries.get(1).getCommand());
   }
